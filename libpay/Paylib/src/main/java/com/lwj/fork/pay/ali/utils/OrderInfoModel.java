@@ -6,7 +6,7 @@ package com.lwj.fork.pay.ali.utils;
 public class OrderInfoModel {
 
     public String pay_info;// 待签名的字符串
-    public String sign;// 签名
+    public String sign;// 签名后的字串
     public String sign_type = "";// 签名类型
 
 
