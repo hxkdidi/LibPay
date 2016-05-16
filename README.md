@@ -91,3 +91,108 @@
 
             }
         });
+        
+## 微信支付
+### 准备工作
+  配置   WXPayEntryActivity
+  在packagename.wxapi 包下新建  activity－－>WXPayEntryActivity    
+  (例如包名为 com.lwj.fork  则在  com.lwj.fork.wxapi 包下新建  ) 
+
+
+	public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
+	
+		private IWXAPI api;
+	
+		@Override
+		public void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			setContentView(R.layout.wx_pay_result);
+	
+	        api = WXPayUtils.getInstance().registerWXAPI(this, ShareAPI.WX_APP_ID);
+			api.handleIntent(getIntent(), this);
+		}
+	
+		@Override
+		protected void onNewIntent(Intent intent) {
+			super.onNewIntent(intent);
+			setIntent(intent);
+			api.handleIntent(intent, this);
+		}
+	
+		@Override
+		public void onReq(BaseReq req) {
+		}
+	
+		/**
+		 * 覆写 该方法即可
+		 */
+		@Override
+		public void onResp(BaseResp resp) {
+	
+			if (resp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
+				AWXpayListener payListener = WXPayUtils.aWXpayListener;
+				if (null != payListener) {
+					payListener.handlePayResp(resp);
+				}
+			}
+			finish();
+	
+			
+		}
+	  }
+	   
+使用前需要注册 appid	  
+与WXPayEntryActivity一样的路径下 新建 BroadcastReceiver 注册 wxapi
+
+	public class AppRegister extends BroadcastReceiver {
+	
+		@Override
+		public void onReceive(Context context, Intent intent) {
+	
+			WXPayUtils.getInstance().registerWXAPI(context,ShareAPI.WX_APP_ID);
+		}
+	}
+	
+### 支付
+		 WXPayUtils.getInstance().pay(context, payReq, new AWXpayListener() {
+		                    @Override
+		                    public void onSucccessPay(BaseResp resp) {
+		                        LogUtil.d("paySuccess %s", "WX  paySuccess");
+		                        orderPaySuccess();
+		                    }
+		
+		                    @Override
+		                    public void onErrorPay(BaseResp resp) {
+		                        LogUtil.d("WXErrorPay_errCode %s", resp.errCode);
+		                    }
+		
+		                    @Override
+		                    public void onCanclePay(BaseResp resp) {
+		
+		                        LogUtil.d("WXCanclePay %s", " WXCanclePay");
+		                    }
+		                });
+		                
+###  payReq
+  PayReq  是  微信自带的 
+  需要设置的变量有
+  
+        PayReq payReq = new PayReq();
+        //  appid
+        payReq.appId = ShareAPI.WX_APP_ID;
+        // 商户id
+        payReq.partnerId = ShareAPI.WX_MCH_ID;
+        // 预支付ID
+        payReq.prepayId = pay_info.prepayid;
+        //扩展字段
+        payReq.packageValue = pay_info.packageValue;
+        // 随机字符串
+        payReq.nonceStr = pay_info.nonce_str;
+        // 时间戳
+        payReq.timeStamp = pay_info.timestamp;
+            // 签名
+        payReq.sign = sign;
+
+                 
+	
+  
