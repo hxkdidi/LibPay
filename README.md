@@ -1,4 +1,15 @@
 # LibPay
+## Maven 导入
+	  <dependency>
+		  <groupId>com.lwj.fork</groupId>
+		  <artifactId>Paylib</artifactId>
+		  <version>1.0.0</version>
+		  <type>pom</type>
+	 </dependency>
+##  gradle 导入
+
+    compile 'com.lwj.fork:Paylib:1.0.0'	
+    
 ## 支付宝支付
 ### 准备工作  
   
